@@ -1,18 +1,31 @@
-#pragma once                 // sorgt dafür, dass die Datei nur 1x eingebunden wird
-#include <ArduinoJson.h>     // wir nutzen ArduinoJson zum Parsen
-#include <Arduino.h>         // für den Datentyp "String"
+#pragma once                 
+#include <ArduinoJson.h>     
+#include <Arduino.h>         
+#include <LittleFS.h>
 
 class DatabaseManager {
 public:
-    DatabaseManager();              // Konstruktor
+    DatabaseManager();
 
-    // JSON laden (z. B. aus NVS oder String)
-    bool load(const String& json);
+    bool begin();
+    bool load(const char* path);
+    bool save(const char* path = nullptr);
 
-    // JSON wieder als String exportieren (z. B. zurück zur GUI schicken)
-    String exportJson() const;
+    const char* getString(const char* key);
+    int getInt(const char* key);
+    float getFloat(const char* key);
 
-private:
-    // JSON-Speicher (hier liegt die geparste Database)
-    DynamicJsonDocument m_doc;
+    bool set(const char* key, const char* value);
+    bool set(const char* key, int value);
+    bool set(const char* key, float value);
+
+private: 
+    StaticJsonDocument<4096> m_doc;
+    
+    String m_path;
+    bool m_loaded;
+
+    JsonVariant resolvePath(const char* path);
+    JsonVariant resolveParent(const char* path, String& lastKey);
+
 };
